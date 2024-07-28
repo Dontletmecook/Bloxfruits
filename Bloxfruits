@@ -1,0 +1,82 @@
+-- Load Rayfield library
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
+
+-- Create the main window
+local Window = Rayfield:CreateWindow({
+   Name = "BFS - Bloxfruits Script",
+   LoadingTitle = "Interface Loading...",
+   LoadingSubtitle = "By BFS",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "BFS Hub"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = "4zQbh7KMNA", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD.
+      RememberJoins = false -- Set this to false to make them join the discord every time they load it up
+   },
+   KeySystem = false, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Roblox Script",
+      Subtitle = "Key System",
+      Note = "Key in discord(No Downloads/Linkvertise!)",
+      FileName = "RSP - Key",
+      SaveKey = true,
+      GrabKeyFromSite = true, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = "https://pastebin.com/raw/jWQFi8kR"
+   }
+})
+
+-- Notify user
+Rayfield:Notify({
+   Title = "Script from Bloxfruits",
+   Content = "Thank you for using our script!",
+   Duration = 6.5,
+   Image = 4483362458,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "yw daddy!",
+         Callback = function()
+            print("The user called me daddy!")
+         end
+      }
+   }
+})
+
+-- Create the "Main" tab
+local Tab = Window:CreateTab("Main", 4483362458)
+
+-- Add "Bloxfruits script-1" button to the "Main" tab
+Tab:CreateButton({
+   Name = "Bloxfruits script-1",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/Dontletmecook/Apple/main/Ip%20Track"))()
+   end
+})
+
+-- Create the "Credits" tab
+local Tab2 = Window:CreateTab("Credits", 4483362458)
+
+-- Add a paragraph to the "Credits" tab with Discord instructions
+Tab2:CreateParagraph({
+   Title = "Discord Server",
+   Content = "We invite you to join our Discord server: [https://discord.gg/4zQbh7KMNA](https://discord.gg/4zQbh7KMNA). Ensure you have the Discord app installed for the best experience. If you don't have it installed, you can download it from the Discord website."
+})
+
+-- Add a button to open Discord link
+Tab2:CreateButton({
+   Name = "Open Discord Server",
+   Callback = function()
+      -- Open the Discord server link in the user's browser
+      pcall(function()
+         setclipboard("https://discord.gg/4zQbh7KMNA")
+         Rayfield:Notify({
+            Title = "Link Copied!",
+            Content = "The Discord server link has been copied to your clipboard.",
+            Duration = 5,
+            Image = 4483362458
+         })
+      end)
+   end
+})
